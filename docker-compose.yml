@@ -1,0 +1,38 @@
+services:
+  postgis:
+    image: postgis/postgis:16-3.4-alpine
+    container_name: nusantara-watch-postgis
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-nusantara_watch}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgis_data:/var/lib/postgresql/data
+      - ./backend/sql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-nusantara_watch}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  martin:
+    image: ghcr.io/maplibre/martin:v0.14.2
+    container_name: nusantara-watch-martin
+    restart: unless-stopped
+    depends_on:
+      postgis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgis:5432/${POSTGRES_DB:-nusantara_watch}
+    command: ["--config", "/config/martin-config.yaml"]
+    ports:
+      - "${MARTIN_PORT:-3001}:3000"
+    volumes:
+      - ./backend/martin-config.yaml:/config/martin-config.yaml:ro
+
+volumes:
+  postgis_data:

@@ -2,7 +2,10 @@ node_modules/
 dist/
 .env
 .env.local
+.env.*.local
+!.env.example
 .karhutla-cache/
 *.log
+*.tsbuildinfo
 .DS_Store
 coverage/
