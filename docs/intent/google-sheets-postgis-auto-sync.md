@@ -1,0 +1,8 @@
+# Confirmed Statement of Intent: Automated Google Sheets → PostgreSQL/PostGIS → Nusantara Watch Sync
+
+- **Outcome:** An automated one-way sync pipeline where **Google Sheets** (47-column Karhutla sitrep) and **QGIS/ArcGIS** (spatial layers) both flow into **PostgreSQL/PostGIS**, which then pushes every change live to **Nusantara Watch** over SSE (`LISTEN / NOTIFY`).
+- **User:** **Posko field staff** (who keep typing daily numbers in the Google Sheet they already know) and **office GIS analysts** (who stop manually copy-pasting Sheet updates into PostgreSQL/the app and only manage spatial layers in QGIS/ArcGIS).
+- **Why now:** Right now, office analysts still have to manually bridge updates from the Google Sheet into the app whenever posko staff edit the spreadsheet.
+- **Success:** When a posko operator edits a cell in your Google Sheet—or a GIS analyst saves a layer edit in QGIS/ArcGIS on PostgreSQL—the updated numbers and map features appear automatically on Nusantara Watch within **15–30 seconds** via zero-auth Google Sheet CSV/JSON polling/diffing (and in **`< 1 second`** when using the optional Google Apps Script `onEdit` webhook).
+- **Constraint:** Must work on `localhost` / office Docker without requiring Google Cloud OAuth Service Account keys (by pasting the Google Sheet URL/ID with *"Anyone with the link can view"*), while also supporting a secret-authenticated `POST /api/bnpb/webhook/gsheets` Apps Script trigger when reachable via a public/tunneled URL.
+- **Out of scope:** Two-way sync (writing PostgreSQL edits back into the Google Sheet), replacing Google Sheets with a custom web data-entry form for posko staff, or requiring Google Cloud IAM service accounts.

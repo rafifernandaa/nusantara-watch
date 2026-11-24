@@ -4,9 +4,9 @@
 How Might We combine satellite fire detections, land-concession boundaries, and public government procurement data into a fluid, zero-setup spatial interface so citizens, journalists, and researchers can instantly compare **where Indonesia is burning** against **where billions of Rupiah in Karhutla budgets are actually being spent**?
 
 ## Recommended Direction
-**Nusantara Watch** is a keyless-first, open-source spatial intelligence web platform inspired by `bilawalsidhu/gods-eye-view` and engineered with the physical motion and material restraint of Apple's *Designing Fluid Interfaces* (`emilkowalski/skills/apple-design`).
+**Nusantara Watch** is a keyless-first, open-source spatial intelligence web platform inspired by `bilawalsidhu/gods-eye-view`, engineered with the physical motion of *Designing Fluid Interfaces* (`src/utils/apple-physics.ts`) and refined via Unslop (`ADR-005`) into an **Ultra-Quiet Spatial HUD** using the **Technical Ink** neutral ramp (`#0b0d14` dark / `#f5f7fa` light) and a single **Signal Ember (`#ff5a36`)** accent.
 
-Instead of military cockpit gimmicks, it presents a calm, high-contrast macOS/visionOS dark glass interface over an interactive 3D/2.5D MapLibre GL + Deck.gl globe of the Indonesian archipelago. It correlates four public datasets in real time:
+Instead of military cockpit gimmicks or noisy chrome, it presents matte instrument surfaces over an interactive 3D/2.5D MapLibre GL + Deck.gl globe of the Indonesian archipelago, paired with an interactive **`03 sortie-deck`** (`@lucasmarkes/hairline`) 2:1 isometric standby stage inside the Hotspot Inspector empty state. It correlates four public datasets in real time:
 1. **NASA FIRMS (VIIRS & MODIS) Active Fires** — sized by Fire Radiative Power (MW) and colored by persistence.
 2. **Peatland (KHG) & Corporate Concessions (HGU/HTI)** — revealing whether fires burn on public land or inside palm oil/pulpwood concessions.
 3. **SiRUP LKPP / LPSE Karhutla Procurement Budgets** — exposing provincial and agency spending (`Rp`) on fire prevention, drones, apps, and canal blocking alongside actual fire incidence.
