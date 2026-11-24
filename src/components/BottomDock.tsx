@@ -13,16 +13,17 @@ import { getDayLabel } from '../utils/formatters';
 import type { BasemapStyle, LayerId } from '../types/watch';
 
 const LAYER_CONFIG: { id: LayerId; label: string; shortcut: string; color: string }[] = [
-  { id: 'hotspots', label: 'Titik Api FIRMS', shortcut: '1', color: '#ff453a' },
-  { id: 'concessions', label: 'Konsesi & Gambut', shortcut: '2', color: '#30d158' },
-  { id: 'budgets', label: 'Arc Anggaran SiRUP', shortcut: '3', color: '#ffd60a' },
-  { id: 'wind-ispu', label: 'Angin & ISPU BMKG', shortcut: '4', color: '#0a84ff' },
+  { id: 'hotspots', label: 'Titik api', shortcut: '1', color: 'var(--accent)' },
+  { id: 'concessions', label: 'Gambut', shortcut: '2', color: 'var(--positive)' },
+  { id: 'budgets', label: 'SiRUP', shortcut: '3', color: 'var(--warning)' },
+  { id: 'wind-ispu', label: 'Angin', shortcut: '4', color: 'var(--info)' },
 ];
 
 const BASEMAPS: { id: BasemapStyle; label: string }[] = [
-  { id: 'dark-glass', label: 'Dark Glass' },
-  { id: 'satellite', label: 'Satelit Esri' },
-  { id: 'terrain', label: 'Topografi' },
+  { id: 'dark-glass', label: 'Dark' },
+  { id: 'light-glass', label: 'Light' },
+  { id: 'satellite', label: 'Satelit' },
+  { id: 'terrain', label: 'Topo' },
 ];
 
 export function BottomDock() {
@@ -114,10 +115,10 @@ export function BottomDock() {
   const progressPercent = ((timelineDayOffset + 6) / 6) * 100;
 
   return (
-    <div className="pointer-events-none fixed bottom-3 left-3 right-3 z-30 flex flex-col items-center gap-2">
+    <div className="pointer-events-none fixed bottom-4 left-4 right-4 z-30 flex flex-col items-center gap-2">
       {/* 7-Day Spatiotemporal Timeline Scrubber */}
       <div
-        className="pointer-events-auto apple-glass-pill flex w-full max-w-3xl items-center gap-3 rounded-2xl px-3.5 py-2"
+        className="pointer-events-auto apple-glass-pill flex w-full max-w-3xl items-center gap-3 rounded-xl px-3 py-2"
         style={{
           transform: `translate3d(${rubberPullPx * 0.35}px, 0, 0)`,
           transition: rubberPullPx === 0 ? 'transform 260ms cubic-bezier(0.22, 1, 0.36, 1)' : 'none',
@@ -126,15 +127,19 @@ export function BottomDock() {
         <button
           type="button"
           onPointerDown={() => setIsPlayingTimeline(!isPlayingTimeline)}
-          className="apple-pressable flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white hover:bg-white/15"
+          className="apple-pressable flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--surface-raised)] border border-[var(--border-hairline)] text-[var(--text-primary)] hover:border-[var(--border-strong)]"
           aria-label={isPlayingTimeline ? 'Jeda lini masa' : 'Putar lini masa 7 hari'}
         >
-          {isPlayingTimeline ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
+          {isPlayingTimeline ? (
+            <Pause className="h-4 w-4" strokeWidth={1.5} />
+          ) : (
+            <Play className="h-4 w-4" strokeWidth={1.5} />
+          )}
         </button>
 
-        <div className="flex flex-col min-w-[138px]">
-          <span className="type-micro text-zinc-400">Lini Masa Satelit (7 Hari)</span>
-          <span className="tabular-nums text-xs font-semibold text-white">
+        <div className="flex flex-col min-w-[136px]">
+          <span className="text-[11px] text-[var(--text-muted)]">Lini masa satelit (7 hari)</span>
+          <span className="font-mono-tabular text-xs font-medium text-[var(--text-primary)]">
             {getDayLabel(timelineDayOffset)}
           </span>
         </div>
@@ -158,9 +163,9 @@ export function BottomDock() {
           }}
           className="relative flex-1 h-7 flex items-center cursor-ew-resize select-none touch-none"
         >
-          <div className="h-1.5 w-full rounded-full bg-white/10 overflow-hidden">
+          <div className="h-1 w-full rounded-full bg-[var(--surface-raised)] overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-[#ff9f0a] to-[#ff453a]"
+              className="h-full bg-[var(--accent)]"
               style={{ width: `${progressPercent}%` }}
             />
           </div>
@@ -170,16 +175,18 @@ export function BottomDock() {
             {[-6, -5, -4, -3, -2, -1, 0].map((d) => (
               <span
                 key={d}
-                className={`h-2 w-0.5 rounded-full ${
-                  d <= timelineDayOffset ? 'bg-white/60' : 'bg-white/20'
-                }`}
+                className="h-1.5 w-0.5 rounded-full"
+                style={{
+                  backgroundColor:
+                    d <= timelineDayOffset ? 'var(--text-muted)' : 'var(--border-strong)',
+                }}
               />
             ))}
           </div>
 
           {/* Thumb */}
           <div
-            className="pointer-events-none absolute -ml-2.5 h-5 w-5 rounded-full bg-white shadow-lg border border-black/20"
+            className="pointer-events-none absolute -ml-2 h-4 w-4 rounded-full bg-[var(--text-primary)] border-2 border-[var(--surface-card)]"
             style={{ left: `${progressPercent}%` }}
           />
         </div>
@@ -187,17 +194,17 @@ export function BottomDock() {
         <button
           type="button"
           onPointerDown={() => setCumulativeTimeline(!cumulativeTimeline)}
-          className="apple-pressable rounded-xl bg-white/[0.07] px-2.5 py-1 text-[11px] font-medium text-zinc-300 hover:text-white border border-white/10"
+          className="apple-pressable h-7 rounded-lg bg-[var(--surface-raised)] px-2.5 text-[11px] font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-hairline)]"
           title="Tampilkan akumulasi 7 hari atau hanya hari terpilih"
         >
-          {cumulativeTimeline ? 'Akumulatif' : 'Per Hari'}
+          {cumulativeTimeline ? 'Akumulatif' : 'Per hari'}
         </button>
       </div>
 
-      {/* Main Floating macOS / visionOS Control Dock */}
+      {/* Main Ultra-Quiet Control Dock */}
       <div className="pointer-events-auto apple-glass-heavy flex flex-wrap items-center justify-center gap-2 rounded-2xl px-3 py-2">
         {/* Layer Toggles */}
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex flex-wrap items-center gap-1">
           {LAYER_CONFIG.map((layer) => {
             const active = activeLayers[layer.id];
             return (
@@ -206,20 +213,21 @@ export function BottomDock() {
                 type="button"
                 onPointerDown={() => toggleLayer(layer.id)}
                 aria-pressed={active}
-                className={`apple-pressable flex items-center gap-2 rounded-xl px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                className={`apple-pressable flex h-8 items-center gap-2 rounded-lg px-2.5 text-xs font-medium border ${
                   active
-                    ? 'bg-white/14 text-white border border-white/20'
-                    : 'bg-transparent text-zinc-400 hover:text-zinc-200 border border-transparent'
+                    ? 'bg-[var(--surface-raised)] text-[var(--text-primary)] border-[var(--border-hairline)]'
+                    : 'bg-transparent text-[var(--text-muted)] hover:text-[var(--text-secondary)] border-transparent'
                 }`}
               >
                 <span
-                  className="h-2 w-2 rounded-full"
+                  className="h-1.5 w-1.5 rounded-full"
                   style={{
-                    backgroundColor: active ? layer.color : 'rgba(255,255,255,0.2)',
+                    backgroundColor: active ? layer.color : 'var(--text-muted)',
+                    opacity: active ? 1 : 0.45,
                   }}
                 />
                 <span>{layer.label}</span>
-                <kbd className="hidden sm:inline-block rounded bg-white/10 px-1 text-[10px] text-zinc-400">
+                <kbd className="hidden sm:inline-block font-mono-tabular rounded bg-[var(--surface-deepest)] border border-[var(--border-hairline)] px-1 text-[10px] text-[var(--text-muted)]">
                   {layer.shortcut}
                 </kbd>
               </button>
@@ -227,19 +235,19 @@ export function BottomDock() {
           })}
         </div>
 
-        <div className="hidden md:block h-5 w-px bg-white/10 mx-1" />
+        <div className="hidden md:block h-4 w-px bg-[var(--border-hairline)] mx-1" />
 
         {/* Basemap Switcher */}
-        <div className="flex items-center rounded-xl bg-black/30 p-0.5 border border-white/10">
+        <div className="flex items-center rounded-lg bg-[var(--surface-deepest)] p-0.5 border border-[var(--border-hairline)]">
           {BASEMAPS.map((b) => (
             <button
               key={b.id}
               type="button"
               onPointerDown={() => setBasemap(b.id)}
-              className={`apple-pressable rounded-lg px-2.5 py-1 text-[11px] font-medium ${
+              className={`apple-pressable h-7 rounded-md px-2.5 text-[11px] font-medium ${
                 basemap === b.id
-                  ? 'bg-white/15 text-white shadow-sm'
-                  : 'text-zinc-400 hover:text-zinc-200'
+                  ? 'bg-[var(--surface-raised)] text-[var(--text-primary)]'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
               }`}
             >
               {b.label}
@@ -253,41 +261,41 @@ export function BottomDock() {
             type="button"
             onPointerDown={toggleGlobeProjection}
             aria-pressed={isGlobeProjection}
-            className={`apple-pressable flex items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-xs font-medium border ${
+            className={`apple-pressable flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium border ${
               isGlobeProjection
-                ? 'bg-white/12 text-white border-white/20'
-                : 'text-zinc-400 border-white/5 hover:text-white'
+                ? 'bg-[var(--surface-raised)] text-[var(--text-primary)] border-[var(--border-hairline)]'
+                : 'text-[var(--text-muted)] border-transparent hover:text-[var(--text-primary)]'
             }`}
             title="Ubah Proyeksi 3D Globe / 2D Datar (G)"
           >
-            <Globe className="h-3.5 w-3.5" />
+            <Globe className="h-4 w-4" strokeWidth={1.5} />
             <span>{isGlobeProjection ? '3D Globe' : '2D Peta'}</span>
           </button>
 
           <button
             type="button"
             onPointerDown={resetGlobe}
-            className="apple-pressable flex items-center gap-1 rounded-xl bg-white/[0.06] px-2.5 py-1.5 text-xs font-medium text-zinc-300 hover:text-white border border-white/10"
+            className="apple-pressable flex h-8 items-center gap-1.5 rounded-lg bg-[var(--surface-raised)] px-2.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-hairline)]"
             title="Reset Kamera ke Kepulauan Indonesia (Esc)"
           >
-            <RotateCcw className="h-3.5 w-3.5" />
+            <RotateCcw className="h-4 w-4" strokeWidth={1.5} />
             <span className="hidden sm:inline">Reset</span>
           </button>
 
           <button
             type="button"
             onPointerDown={handleCopyShareLink}
-            className="apple-pressable flex items-center gap-1 rounded-xl bg-white/[0.06] px-2.5 py-1.5 text-xs font-medium text-zinc-300 hover:text-white border border-white/10"
+            className="apple-pressable flex h-8 items-center gap-1.5 rounded-lg bg-[var(--surface-raised)] px-2.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-[var(--border-hairline)]"
             title="Salin tautan posisi & layer aktif"
           >
             {copiedUrl ? (
               <>
-                <Check className="h-3.5 w-3.5 text-[#30d158]" />
-                <span className="text-[#30d158]">Tersalin</span>
+                <Check className="h-4 w-4 text-[var(--positive)]" strokeWidth={1.5} />
+                <span className="text-[var(--positive)]">Tersalin</span>
               </>
             ) : (
               <>
-                <Share2 className="h-3.5 w-3.5" />
+                <Share2 className="h-4 w-4" strokeWidth={1.5} />
                 <span className="hidden sm:inline">Bagikan</span>
               </>
             )}

@@ -14,8 +14,9 @@ import {
 } from '../data/local_data/indonesia-osint-seed';
 import { useWatchStore } from '../store/useWatchStore';
 import { APPLE_SPRINGS } from '../utils/apple-physics';
-import { formatRupiah } from '../utils/formatters';
+import { formatRupiah, formatShortRupiah } from '../utils/formatters';
 import type { AnomalyLevel } from '../types/watch';
+import { BklitBudgetComparisonChart } from './charts/BklitCharts';
 
 export function CivicBudgetDrawer() {
   const isBudgetWatchdogOpen = useWatchStore((s) => s.isBudgetWatchdogOpen);
@@ -52,47 +53,47 @@ export function CivicBudgetDrawer() {
     <AnimatePresence>
       {isBudgetWatchdogOpen && (
         <motion.section
-          initial={{ opacity: 0, x: -36, scale: 0.96 }}
+          initial={{ opacity: 0, x: -32, scale: 0.97 }}
           animate={{ opacity: 1, x: 0, scale: 1 }}
-          exit={{ opacity: 0, x: -36, scale: 0.96 }}
+          exit={{ opacity: 0, x: -32, scale: 0.97 }}
           transition={APPLE_SPRINGS.default}
           aria-label="Audit Anggaran SiRUP LKPP vs Realita Titik Api"
-          className="fixed left-3 top-20 bottom-28 z-30 w-[calc(100vw-24px)] sm:w-[415px] apple-glass-heavy rounded-3xl flex flex-col overflow-hidden"
+          className="fixed left-4 top-20 bottom-24 z-30 w-[calc(100vw-32px)] sm:w-[416px] apple-glass-heavy rounded-2xl flex flex-col overflow-hidden"
           style={{ transformOrigin: 'top left' }}
         >
           {/* Header */}
-          <div className="px-4 pt-3.5 pb-3 border-b border-white/[0.08] flex items-start justify-between gap-2">
+          <div className="px-4 pt-4 pb-3 border-b border-[var(--border-hairline)] flex items-start justify-between gap-2">
             <div>
               <div className="flex items-center gap-2">
-                <Scale className="h-4 w-4 text-[#ff6961]" />
-                <h2 className="type-title text-white">
-                  Anggaran SiRUP vs. Realita Karhutla
+                <Scale className="h-4 w-4 text-[var(--accent)]" strokeWidth={1.5} />
+                <h2 className="type-title text-[var(--text-primary)]">
+                  Anggaran SiRUP vs. realita karhutla
                 </h2>
               </div>
-              <p className="text-xs text-zinc-400 mt-0.5">
-                Komparasi Pagu Pengadaan LKPP dengan Titik Api Satelit Aktif
+              <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+                Komparasi pagu pengadaan LKPP dengan titik api satelit aktif
               </p>
             </div>
             <button
               type="button"
               onPointerDown={() => setBudgetWatchdogOpen(false)}
-              className="apple-pressable rounded-full bg-white/10 p-1.5 text-zinc-300 hover:text-white"
+              className="apple-pressable rounded-lg bg-[var(--surface-raised)] p-1.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-hairline)]"
               aria-label="Tutup panel anggaran"
             >
-              <X className="h-4 w-4" />
+              <X className="h-4 w-4" strokeWidth={1.5} />
             </button>
           </div>
 
           {/* Mode Segmented Control */}
-          <div className="px-4 pt-2.5 flex items-center gap-2">
-            <div className="flex w-full rounded-xl bg-black/35 p-0.5 border border-white/10">
+          <div className="px-4 pt-3 flex items-center gap-2">
+            <div className="flex w-full rounded-lg bg-[var(--surface-deepest)] p-1 border border-[var(--border-hairline)]">
               <button
                 type="button"
                 onPointerDown={() => setActiveTab('budgets')}
-                className={`apple-pressable flex-1 rounded-lg py-1.5 text-xs font-medium ${
+                className={`apple-pressable flex-1 rounded-md py-1.5 text-xs font-medium ${
                   activeTab === 'budgets'
-                    ? 'bg-white/15 text-white shadow-sm'
-                    : 'text-zinc-400 hover:text-zinc-200'
+                    ? 'bg-[var(--surface-raised)] text-[var(--text-primary)]'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
                 }`}
               >
                 Paket SiRUP ({SIRUP_BUDGET_PACKAGES.length})
@@ -100,57 +101,57 @@ export function CivicBudgetDrawer() {
               <button
                 type="button"
                 onPointerDown={() => setActiveTab('hotspots')}
-                className={`apple-pressable flex-1 rounded-lg py-1.5 text-xs font-medium ${
+                className={`apple-pressable flex-1 rounded-md py-1.5 text-xs font-medium ${
                   activeTab === 'hotspots'
-                    ? 'bg-white/15 text-white shadow-sm'
-                    : 'text-zinc-400 hover:text-zinc-200'
+                    ? 'bg-[var(--surface-raised)] text-[var(--text-primary)]'
+                    : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
                 }`}
               >
-                Daftar Titik Api ({INDONESIAN_HOTSPOTS.length})
+                Daftar titik api ({INDONESIAN_HOTSPOTS.length})
               </button>
             </div>
           </div>
 
           {activeTab === 'budgets' ? (
             <>
-              {/* Headline Discrepancy Banner ("Abil Sudarman" Insight) */}
-              <div className="mx-4 mt-2.5 apple-elevated-card rounded-2xl p-3 grid grid-cols-2 gap-2.5">
+              {/* Headline Discrepancy Banner */}
+              <div className="mx-4 mt-3 apple-elevated-card rounded-xl p-3 grid grid-cols-2 gap-3">
                 <div>
-                  <span className="type-micro text-[#ff6961] block">
-                    Belanja Aplikasi/Portal IT
+                  <span className="text-[11px] text-[var(--negative)] block">
+                    Belanja aplikasi/portal IT
                   </span>
-                  <span className="tabular-nums text-sm font-semibold text-white">
+                  <span className="font-mono-tabular text-sm font-medium text-[var(--text-primary)] mt-0.5 block">
                     {formatRupiah(summary.itDashboardSpend)}
                   </span>
-                  <span className="text-[10px] text-zinc-400 block">
-                    3 Paket Dashboard/Web
+                  <span className="text-[11px] text-[var(--text-muted)] block">
+                    3 paket dashboard/web
                   </span>
                 </div>
-                <div className="border-l border-white/10 pl-2.5">
-                  <span className="type-micro text-[#30d158] block">
-                    Fisik Sekat Kanal Gambut
+                <div className="border-l border-[var(--border-hairline)] pl-3">
+                  <span className="text-[11px] text-[var(--positive)] block">
+                    Fisik sekat kanal gambut
                   </span>
-                  <span className="tabular-nums text-sm font-semibold text-white">
+                  <span className="font-mono-tabular text-sm font-medium text-[var(--text-primary)] mt-0.5 block">
                     {formatRupiah(summary.physicalFieldSpend)}
                   </span>
-                  <span className="text-[10px] text-zinc-400 block">
-                    185 Konstruksi Basah
+                  <span className="text-[11px] text-[var(--text-muted)] block">
+                    185 konstruksi basah
                   </span>
                 </div>
               </div>
 
               {/* Filter Pills */}
-              <div className="px-4 pt-2.5 pb-1 flex items-center gap-1.5 overflow-x-auto">
+              <div className="px-4 pt-3 pb-1 flex items-center gap-1.5 overflow-x-auto">
                 {(['ALL', 'Disproportionate', 'Elevated', 'Normal'] as const).map(
                   (lvl) => (
                     <button
                       key={lvl}
                       type="button"
                       onPointerDown={() => setRiskFilter(lvl)}
-                      className={`apple-pressable rounded-lg px-2.5 py-1 text-[11px] font-medium border ${
+                      className={`apple-pressable rounded-lg px-2.5 h-7 text-[11px] font-medium border ${
                         riskFilter === lvl
-                          ? 'bg-white/15 text-white border-white/25'
-                          : 'bg-transparent text-zinc-400 border-white/5 hover:text-zinc-200'
+                          ? 'bg-[var(--text-primary)] text-[var(--surface-card)] border-transparent'
+                          : 'bg-transparent text-[var(--text-muted)] border-[var(--border-hairline)] hover:text-[var(--text-primary)]'
                       }`}
                     >
                       {lvl === 'ALL' ? 'Semua' : lvl}
@@ -159,8 +160,24 @@ export function CivicBudgetDrawer() {
                 )}
               </div>
 
-              {/* Scrollable Package List */}
+              {/* Scrollable Comparison Chart & Package List */}
               <div className="scroll-mask-y flex-1 overflow-y-auto px-4 py-2.5 space-y-2.5">
+                <BklitBudgetComparisonChart
+                  title="Perbandingan pagu SiRUP vs titik api"
+                  subtitle="Klik baris paket untuk melacak arc di peta"
+                  selectedId={selectedBudgetId}
+                  onSelectItem={(id) => selectBudget(id)}
+                  items={filteredBudgets.map((pkg) => ({
+                    id: pkg.sirupId,
+                    label: `${pkg.province} · ${pkg.category}`,
+                    subLabel: pkg.agency,
+                    budgetRp: pkg.budgetRp,
+                    hotspots: pkg.provinceActiveHotspots,
+                    anomalyLevel: pkg.anomalyLevel,
+                    formattedBudget: formatShortRupiah(pkg.budgetRp),
+                  }))}
+                />
+
                 {filteredBudgets.map((pkg) => {
                   const isSelected = pkg.sirupId === selectedBudgetId;
                   return (
@@ -172,53 +189,55 @@ export function CivicBudgetDrawer() {
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' || e.key === ' ') selectBudget(pkg.sirupId);
                       }}
-                      className={`apple-pressable apple-elevated-card cursor-pointer rounded-2xl p-3.5 space-y-2 transition-all ${
-                        isSelected ? 'ring-1 ring-[#ffd60a] bg-white/[0.09]' : ''
+                      className={`apple-pressable apple-elevated-card cursor-pointer rounded-xl p-3.5 space-y-2 transition-colors ${
+                        isSelected ? 'border-[var(--accent)]' : ''
                       }`}
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <span className="tabular-nums text-[10px] font-mono text-zinc-400">
+                        <span className="font-mono-tabular text-[11px] text-[var(--text-muted)]">
                           {pkg.sirupId} · {pkg.province}
                         </span>
                         <span
-                          className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                          className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-medium ${
                             pkg.anomalyLevel === 'Disproportionate'
-                              ? 'bg-[#ff453a]/20 text-[#ff6961] border border-[#ff453a]/30'
+                              ? 'bg-[var(--negative-soft)] text-[var(--negative)]'
                               : pkg.anomalyLevel === 'Elevated'
-                                ? 'bg-[#ff9f0a]/20 text-[#ffb340] border border-[#ff9f0a]/30'
-                                : 'bg-[#30d158]/20 text-[#30d158] border border-[#30d158]/30'
+                                ? 'bg-[var(--warning-soft)] text-[var(--warning)]'
+                                : 'bg-[var(--positive-soft)] text-[var(--positive)]'
                           }`}
                         >
                           {pkg.anomalyLevel === 'Normal' ? (
-                            <CheckCircle2 className="h-3 w-3" />
+                            <CheckCircle2 className="h-3 w-3" strokeWidth={1.5} />
                           ) : (
-                            <AlertTriangle className="h-3 w-3" />
+                            <AlertTriangle className="h-3 w-3" strokeWidth={1.5} />
                           )}
                           {pkg.anomalyLevel}
                         </span>
                       </div>
 
-                      <h3 className="text-xs font-semibold text-white leading-snug">
+                      <h3 className="text-xs font-medium text-[var(--text-primary)] leading-snug">
                         {pkg.packageName}
                       </h3>
 
                       <div className="flex items-baseline justify-between">
-                        <span className="text-[11px] text-zinc-400">{pkg.agency}</span>
-                        <span className="tabular-nums text-sm font-bold text-[#ffd60a]">
+                        <span className="text-[11px] text-[var(--text-secondary)]">
+                          {pkg.agency}
+                        </span>
+                        <span className="font-mono-tabular text-sm font-medium text-[var(--accent)]">
                           {formatRupiah(pkg.budgetRp)}
                         </span>
                       </div>
 
-                      <p className="text-[11px] text-zinc-300 leading-relaxed bg-black/25 rounded-xl p-2 border border-white/[0.05]">
+                      <p className="text-xs text-[var(--text-secondary)] leading-relaxed bg-[var(--surface-deepest)] rounded-lg p-2.5 border border-[var(--border-hairline)]">
                         {pkg.anomalyReason}
                       </p>
 
-                      <div className="flex items-center justify-between pt-1 text-[11px] text-zinc-400">
-                        <span className="tabular-nums text-[#ff6961] font-medium">
-                          {pkg.provinceActiveHotspots} Titik Api Aktif di {pkg.province}
+                      <div className="flex items-center justify-between pt-1 text-[11px] text-[var(--text-muted)]">
+                        <span className="font-mono-tabular text-[var(--negative)] font-medium">
+                          {pkg.provinceActiveHotspots} titik api aktif di {pkg.province}
                         </span>
-                        <span className="inline-flex items-center gap-1 text-zinc-200 font-medium">
-                          Lacak Arc di Peta <ArrowUpRight className="h-3 w-3" />
+                        <span className="inline-flex items-center gap-1 text-[var(--text-primary)] font-medium">
+                          Lacak arc di peta <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={1.5} />
                         </span>
                       </div>
                     </div>
@@ -240,26 +259,26 @@ export function CivicBudgetDrawer() {
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') selectHotspot(h.id);
                     }}
-                    className={`apple-pressable apple-elevated-card cursor-pointer rounded-2xl p-3 flex items-center justify-between gap-3 ${
-                      selected ? 'ring-1 ring-[#ff453a] bg-white/[0.09]' : ''
+                    className={`apple-pressable apple-elevated-card cursor-pointer rounded-xl p-3 flex items-center justify-between gap-3 transition-colors ${
+                      selected ? 'border-[var(--accent)]' : ''
                     }`}
                   >
                     <div className="space-y-0.5">
                       <div className="flex items-center gap-1.5">
-                        <Flame className="h-3.5 w-3.5 text-[#ff453a]" />
-                        <span className="text-xs font-semibold text-white">
+                        <Flame className="h-3.5 w-3.5 text-[var(--accent)]" strokeWidth={1.5} />
+                        <span className="text-xs font-medium text-[var(--text-primary)]">
                           {h.kabupaten}, {h.province}
                         </span>
                       </div>
-                      <p className="text-[11px] text-zinc-400">
-                        {h.concessionHolder ?? 'Lahan Non-Konsesi'}
+                      <p className="text-[11px] text-[var(--text-muted)]">
+                        {h.concessionHolder ?? 'Lahan non-konsesi'}
                       </p>
                     </div>
                     <div className="text-right shrink-0">
-                      <span className="tabular-nums text-xs font-bold text-[#ff453a] block">
+                      <span className="font-mono-tabular text-xs font-medium text-[var(--accent)] block">
                         {h.frpMw} MW
                       </span>
-                      <span className="tabular-nums text-[10px] text-zinc-400">
+                      <span className="font-mono-tabular text-[11px] text-[var(--text-muted)]">
                         {h.persistenceHours}j · {h.confidence}%
                       </span>
                     </div>

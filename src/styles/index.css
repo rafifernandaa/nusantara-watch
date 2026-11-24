@@ -1,100 +1,189 @@
 @import "tailwindcss";
 @import "maplibre-gl/dist/maplibre-gl.css";
 
-:root {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", system-ui, sans-serif;
+@custom-variant dark (&:is(.dark *));
+
+:root,
+:root[data-theme="dark"] {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
   line-height: 1.45;
   color-scheme: dark;
-  --glass-heavy-bg: rgba(16, 16, 20, 0.76);
-  --glass-pill-bg: rgba(24, 24, 30, 0.68);
-  --glass-specular: rgba(255, 255, 255, 0.16);
-  --glass-border: rgba(255, 255, 255, 0.09);
-  --elevated-card-bg: rgba(255, 255, 255, 0.055);
-  --elevated-card-hover: rgba(255, 255, 255, 0.085);
+  --surface-deepest: #07080d;
+  --canvas-bg: #0b0d14;
+  --surface-page: #0b0d14;
+  --surface-card: #11141c;
+  --surface-raised: #1a1e28;
+  --surface-raised-hover: #212633;
+  --border-hairline: rgba(238, 240, 245, 0.08);
+  --border-strong: rgba(238, 240, 245, 0.14);
+  --text-primary: #eef0f5;
+  --text-secondary: #a3a9b8;
+  --text-muted: #7a8296;
+  --accent: oklch(0.68 0.195 34);
+  --accent-soft: oklch(0.68 0.195 34 / 0.15);
+  --positive: oklch(0.74 0.165 156);
+  --positive-soft: oklch(0.74 0.165 156 / 0.15);
+  --negative: oklch(0.66 0.195 22);
+  --negative-soft: oklch(0.66 0.195 22 / 0.15);
+  --warning: oklch(0.78 0.165 82);
+  --warning-soft: oklch(0.78 0.165 82 / 0.15);
+  --info: oklch(0.72 0.165 248);
+  --info-soft: oklch(0.72 0.165 248 / 0.15);
+  --segmented-track-bg: #07080d;
+  --panel-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+  --vignette-gradient: radial-gradient(circle at 50% 50%, transparent 62%, rgba(7, 8, 13, 0.48) 100%);
+  /* Hairline stage tokens */
+  --ground: #07080d;
+  --ink: #eef0f5;
+  --muted: #7a8296;
+  --line: rgba(238, 240, 245, 0.08);
+  /* Perceptually Uniform OKLCH Chart Series (L=0.72, C=0.165) */
+  --chart-1: oklch(0.72 0.165 250);
+  --chart-2: oklch(0.72 0.165 168);
+  --chart-3: oklch(0.76 0.165 78);
+  --chart-4: oklch(0.72 0.165 142);
+  --chart-5: oklch(0.70 0.185 32);
+  --chart-6: oklch(0.72 0.165 295);
+  /* BNPB Province Accents */
+  --prov-riau: var(--chart-1);
+  --prov-jambi: var(--chart-2);
+  --prov-sumsel: var(--chart-3);
+  --prov-kalbar: var(--chart-4);
+  --prov-kalteng: var(--chart-5);
+  --prov-kalsel: var(--chart-6);
 }
 
-/* Optical Typography Discipline (WWDC 2020 Details of UI Typography) */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --surface-deepest: #eceff4;
+  --canvas-bg: #f5f7fa;
+  --surface-page: #f5f7fa;
+  --surface-card: #ffffff;
+  --surface-raised: #eceff4;
+  --surface-raised-hover: #e3e7ee;
+  --border-hairline: rgba(17, 24, 39, 0.08);
+  --border-strong: rgba(17, 24, 39, 0.14);
+  --text-primary: #111827;
+  --text-secondary: #4b5565;
+  --text-muted: #6b7487;
+  --accent: oklch(0.56 0.195 34);
+  --accent-soft: oklch(0.56 0.195 34 / 0.11);
+  --positive: oklch(0.54 0.165 156);
+  --positive-soft: oklch(0.54 0.165 156 / 0.11);
+  --negative: oklch(0.55 0.195 22);
+  --negative-soft: oklch(0.55 0.195 22 / 0.11);
+  --warning: oklch(0.56 0.165 76);
+  --warning-soft: oklch(0.56 0.165 76 / 0.11);
+  --info: oklch(0.54 0.165 248);
+  --info-soft: oklch(0.54 0.165 248 / 0.11);
+  --segmented-track-bg: #eceff4;
+  --panel-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 8px 24px rgba(0, 0, 0, 0.06);
+  --vignette-gradient: radial-gradient(circle at 50% 50%, transparent 66%, rgba(17, 24, 39, 0.08) 100%);
+  /* Hairline stage tokens */
+  --ground: #f5f7fa;
+  --ink: #111827;
+  --muted: #6b7487;
+  --line: rgba(17, 24, 39, 0.08);
+  /* Adaptive Light OKLCH Chart Series */
+  --chart-1: oklch(0.55 0.165 250);
+  --chart-2: oklch(0.55 0.165 168);
+  --chart-3: oklch(0.58 0.165 75);
+  --chart-4: oklch(0.54 0.165 142);
+  --chart-5: oklch(0.56 0.185 32);
+  --chart-6: oklch(0.55 0.165 295);
+}
+
+/* Quiet Typography Scale (Unslop: sentence case, 400-500 weights, no negative tracking < 16px) */
 .type-display {
   font-size: clamp(1.5rem, 2.5vw, 2.25rem);
-  line-height: 1.06;
-  letter-spacing: -0.024em;
-  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  font-weight: 500;
   font-optical-sizing: auto;
 }
 
 .type-title {
-  font-size: 1.05rem;
-  line-height: 1.22;
-  letter-spacing: -0.015em;
-  font-weight: 600;
+  font-size: 0.9375rem;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  font-weight: 500;
 }
 
 .type-body {
   font-size: 0.875rem;
   line-height: 1.45;
-  letter-spacing: -0.005em;
+  letter-spacing: 0;
+  font-weight: 400;
 }
 
-.type-micro {
-  font-size: 0.6875rem;
-  line-height: 1.25;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  font-weight: 600;
+.type-micro,
+.type-caption {
+  font-size: 0.75rem;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  font-weight: 400;
+  color: var(--text-muted);
 }
 
 .tabular-nums {
   font-variant-numeric: tabular-nums;
 }
 
-/* Apple Translucent Materials — Never stack light-on-light glass */
-.apple-glass-heavy {
-  background: var(--glass-heavy-bg);
-  backdrop-filter: blur(28px) saturate(190%);
-  -webkit-backdrop-filter: blur(28px) saturate(190%);
-  border: 1px solid var(--glass-border);
-  border-top-color: var(--glass-specular);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.35);
+.font-mono-tabular {
+  font-family: "JetBrains Mono", "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
 }
 
+/* Technical Ink Matte Surfaces (no glass-on-glass, 1px hairline borders) */
+.apple-glass-heavy,
 .apple-glass-pill {
-  background: var(--glass-pill-bg);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid var(--glass-border);
-  border-top-color: var(--glass-specular);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  background: var(--surface-card);
+  border: 1px solid var(--border-hairline);
+  box-shadow: var(--panel-shadow);
+  transition: background-color 160ms cubic-bezier(0.22, 1, 0.36, 1), border-color 160ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Solid/semi-opaque child surface inside glass containers (no nested backdrop-filter) */
 .apple-elevated-card {
-  background: var(--elevated-card-bg);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  transition: background-color 140ms ease;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-hairline);
+  transition: background-color 140ms cubic-bezier(0.22, 1, 0.36, 1), border-color 140ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .apple-elevated-card:hover {
-  background: var(--elevated-card-hover);
+  background: var(--surface-raised-hover);
 }
 
-/* Instant pointer-down response (Rule #1: Kill latency) */
+.hairline-plate {
+  --ground: var(--surface-deepest);
+  --ink: var(--text-primary);
+  --muted: var(--text-muted);
+  --line: var(--border-hairline);
+}
+
+option {
+  background-color: var(--surface-card);
+  color: var(--text-primary);
+}
+
+/* Instant pointer-down response */
 .apple-pressable {
   user-select: none;
   -webkit-tap-highlight-color: transparent;
-  transition: transform 90ms cubic-bezier(0.22, 1, 0.36, 1), background-color 120ms ease, opacity 120ms ease;
+  transition: transform 120ms cubic-bezier(0.22, 1, 0.36, 1), background-color 140ms cubic-bezier(0.22, 1, 0.36, 1), border-color 140ms cubic-bezier(0.22, 1, 0.36, 1), opacity 140ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .apple-pressable:active {
-  transform: scale(0.965);
+  transform: scale(0.975);
 }
 
-/* Scroll edge gradient fade instead of hard 1px dividers */
+/* Scroll edge fade */
 .scroll-mask-y {
   mask-image: linear-gradient(
     to bottom,
     transparent 0px,
-    black 14px,
-    black calc(100% - 18px),
+    black 12px,
+    black calc(100% - 16px),
     transparent 100%
   );
 }
@@ -108,28 +197,27 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(122, 130, 150, 0.32);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.28);
+  background: rgba(122, 130, 150, 0.52);
 }
 
 /* MapLibre clean attribution styling */
 .maplibregl-ctrl-attrib {
-  background: rgba(12, 12, 16, 0.55) !important;
-  backdrop-filter: blur(8px);
-  color: rgba(255, 255, 255, 0.5) !important;
-  border-radius: 9999px !important;
-  padding: 2px 10px !important;
+  background: var(--surface-card) !important;
+  color: var(--text-secondary) !important;
+  border-radius: 8px !important;
+  padding: 2px 8px !important;
   font-size: 10px !important;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-hairline);
 }
 .maplibregl-ctrl-attrib a {
-  color: rgba(255, 255, 255, 0.7) !important;
+  color: var(--text-primary) !important;
 }
 
-/* Accessibility & Reduced Motion / Transparency Overrides (Rule #14) */
+/* Accessibility & Reduced Motion / Contrast Overrides */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -148,9 +236,7 @@
 @media (prefers-reduced-transparency: reduce) {
   .apple-glass-heavy,
   .apple-glass-pill {
-    background: #141418 !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
+    background: var(--surface-card) !important;
   }
 }
 
@@ -158,7 +244,140 @@
   .apple-glass-heavy,
   .apple-glass-pill,
   .apple-elevated-card {
-    border: 1.5px solid rgba(255, 255, 255, 0.55) !important;
-    background: #0d0d10 !important;
+    border: 1.5px solid var(--text-primary) !important;
   }
+}
+
+@theme inline {
+  --color-chart-line-primary: var(--chart-line-primary);
+  --color-chart-line-secondary: var(--chart-line-secondary);
+  --color-chart-brush-border: var(--chart-brush-border);
+  --color-chart-tooltip-background: var(--chart-tooltip-background);
+  --color-chart-tooltip-foreground: var(--chart-tooltip-foreground);
+  --color-chart-tooltip-muted: var(--chart-tooltip-muted);
+  --color-chart-scale-02: var(--chart-scale-02);
+  --color-chart-scale-03: var(--chart-scale-03);
+  --color-chart-scale-04: var(--chart-scale-04);
+  --color-chart-scale-05: var(--chart-scale-05);
+  --color-chart-segment-line: var(--chart-segment-line);
+  --color-chart-segment-background: var(--chart-segment-background);
+  --color-chart-marker-badge-foreground: var(--chart-marker-badge-foreground);
+  --color-chart-marker-badge-background: var(--chart-marker-badge-background);
+  --color-chart-indicator-secondary-color: var(--chart-indicator-secondary-color);
+  --color-chart-indicator-color: var(--chart-indicator-color);
+  --color-chart-scale-pattern-color: var(--chart-scale-pattern-color);
+  --chart-scale-05: var(--chart-scale-05);
+  --chart-scale-04: var(--chart-scale-04);
+  --chart-scale-03: var(--chart-scale-03);
+  --chart-scale-02: var(--chart-scale-02);
+  --color-chart-scale-01: var(--chart-scale-01);
+  --color-chart-scale-mix: var(--chart-scale-mix);
+  --color-chart-label: var(--chart-label);
+  --color-chart-marker-foreground: var(--chart-marker-foreground);
+  --color-chart-marker-border: var(--chart-marker-border);
+  --color-chart-marker-background: var(--chart-marker-background);
+  --chart-tooltip-muted: var(--chart-tooltip-muted);
+  --chart-tooltip-foreground: var(--chart-tooltip-foreground);
+  --chart-tooltip-background: var(--chart-tooltip-background);
+  --chart-brush-border: var(--chart-brush-border);
+  --color-chart-grid: var(--chart-grid);
+  --color-chart-crosshair: var(--chart-crosshair);
+  --chart-line-secondary: var(--chart-line-secondary);
+  --chart-line-primary: var(--chart-line-primary);
+  --color-chart-foreground-muted: var(--chart-foreground-muted);
+  --color-chart-foreground: var(--chart-foreground);
+  --color-chart-background: var(--chart-background);
+  --color-chart-negative: var(--chart-negative);
+  --color-chart-positive: var(--chart-positive);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-legend-track: var(--legend-track);
+  --color-legend-muted-foreground: var(--legend-muted-foreground);
+  --color-legend-muted: var(--legend-muted);
+  --color-legend-foreground: var(--legend-foreground);
+  --color-legend: var(--legend);
+}
+
+:root {
+  --legend: oklch(1 0 0);
+  --legend-foreground: oklch(0.141 0.005 285.823);
+  --legend-muted: oklch(0.967 0.001 286.375);
+  --legend-muted-foreground: oklch(0.552 0.016 285.938);
+  --legend-track: oklch(0.92 0.004 286.32);
+  --chart-1: oklch(0.585 0.233 277.117);
+  --chart-2: oklch(0.852 0.199 91.936);
+  --chart-3: oklch(0.459 0.156 302.679);
+  --chart-4: oklch(0.56 0.021 213.5);
+  --chart-5: oklch(0 0 0);
+  --chart-positive: oklch(0.696 0.17 162.48);
+  --chart-negative: oklch(0.637 0.237 25.331);
+  --chart-background: oklch(1 0 0);
+  --chart-foreground: oklch(0.145 0.004 285);
+  --chart-foreground-muted: oklch(0.55 0.014 260);
+  --chart-line-primary: var(--chart-1);
+  --chart-line-secondary: var(--chart-2);
+  --chart-crosshair: oklch(0.4 0.1828 274.34);
+  --chart-grid: oklch(0.9 0 0);
+  --chart-brush-border: var(--chart-grid);
+  --chart-tooltip-background: var(--popover);
+  --chart-tooltip-foreground: var(--popover-foreground);
+  --chart-tooltip-muted: var(--muted-foreground);
+  --chart-marker-background: oklch(0.97 0.005 260);
+  --chart-marker-border: oklch(0.85 0.01 260);
+  --chart-marker-foreground: oklch(0.3 0.01 260);
+  --chart-label: oklch(0.45 0.01 260);
+  --chart-scale-mix: oklch(1 0 0);
+  --chart-scale-01: oklch(0.922 0 0);
+  --chart-scale-02: color-mix(in oklab, var(--chart-1) 35%, var(--chart-scale-mix));
+  --chart-scale-03: color-mix(in oklab, var(--chart-1) 55%, var(--chart-scale-mix));
+  --chart-scale-04: color-mix(in oklab, var(--chart-1) 78%, var(--chart-scale-mix));
+  --chart-scale-05: var(--chart-1);
+  --chart-scale-pattern-color: oklch(1 0 0);
+  --chart-indicator-color: oklch(0.21 0.006 285);
+  --chart-indicator-secondary-color: oklch(0.913 0 0);
+  --chart-marker-badge-background: oklch(0 0 0);
+  --chart-marker-badge-foreground: oklch(0.84 0 0);
+  --chart-segment-background: oklch(0.756 0 0 / 0.06);
+  --chart-segment-line: oklch(0.5 0 0 / 0.25);
+}
+
+.dark {
+  --legend: oklch(0.21 0.006 285.885);
+  --legend-foreground: oklch(0.985 0 0);
+  --legend-muted: oklch(0.274 0.006 286.033);
+  --legend-muted-foreground: oklch(0.705 0.015 286.067);
+  --legend-track: oklch(0.274 0.006 286.033);
+  --chart-1: oklch(0.585 0.233 277.117);
+  --chart-2: oklch(0.852 0.199 91.936);
+  --chart-3: oklch(0.459 0.156 302.679);
+  --chart-4: oklch(0.56 0.021 213.5);
+  --chart-5: oklch(1 0 0);
+  --chart-positive: oklch(0.765 0.177 163.223);
+  --chart-negative: oklch(0.704 0.191 22.216);
+  --chart-background: oklch(0.145 0 0);
+  --chart-foreground: oklch(0.45 0 0);
+  --chart-foreground-muted: oklch(0.65 0.01 260);
+  --chart-crosshair: oklch(0.45 0 0);
+  --chart-grid: oklch(0.25 0 0);
+  --chart-brush-border: var(--chart-grid);
+  --chart-marker-background: oklch(0.25 0.01 260);
+  --chart-marker-border: oklch(0.4 0.01 260);
+  --chart-marker-foreground: oklch(0.9 0 0);
+  --chart-label: oklch(0.75 0.01 260);
+  --chart-scale-mix: oklch(0.25 0 0);
+  --chart-scale-01: oklch(0.3 0 0);
+  --chart-scale-02: color-mix(in oklab, var(--chart-1) 35%, var(--chart-scale-mix));
+  --chart-scale-03: color-mix(in oklab, var(--chart-1) 55%, var(--chart-scale-mix));
+  --chart-scale-04: color-mix(in oklab, var(--chart-1) 78%, var(--chart-scale-mix));
+  --chart-scale-05: var(--chart-1);
+  --chart-scale-pattern-color: oklch(0.145 0 0);
+  --chart-indicator-color: oklch(1 0 0);
+  --chart-indicator-secondary-color: oklch(0.145 0 0);
+  --chart-marker-badge-background: oklch(1 0 0);
+  --chart-marker-badge-foreground: oklch(0.15 0 0);
+  --chart-segment-background: oklch(0.41 0.0127 248.14 / 0.25);
+  --chart-segment-line: oklch(1 0 0 / 0.25);
 }

@@ -1,16 +1,10 @@
 import { useMemo } from 'react';
+import { KeyRound, Moon, Sun } from 'lucide-react';
+import { SIRUP_BUDGET_PACKAGES } from '../data/local_data/indonesia-osint-seed';
 import {
-  AlertTriangle,
-  Flame,
-  KeyRound,
-  Scale,
-  ShieldAlert,
-  Sparkles,
-} from 'lucide-react';
-import {
-  INDONESIAN_HOTSPOTS,
-  SIRUP_BUDGET_PACKAGES,
-} from '../data/local_data/indonesia-osint-seed';
+  aggregateBnpbMetrics,
+  filterBnpbRecords,
+} from '../data/local_data/bnpb-karhutla-2026';
 import { useWatchStore } from '../store/useWatchStore';
 import { filterHotspots, formatRupiah } from '../utils/formatters';
 
@@ -27,35 +21,46 @@ const PROVINCE_OPTIONS = [
 ];
 
 export function TopStatusBar() {
+  const theme = useWatchStore((s) => s.theme);
+  const backendMode = useWatchStore((s) => s.backendMode);
+  const hotspots = useWatchStore((s) => s.hotspots);
+  const bnpbRecords = useWatchStore((s) => s.bnpbRecords);
   const selectedProvinceFilter = useWatchStore((s) => s.selectedProvinceFilter);
   const timelineDayOffset = useWatchStore((s) => s.timelineDayOffset);
   const cumulativeTimeline = useWatchStore((s) => s.cumulativeTimeline);
   const isBudgetWatchdogOpen = useWatchStore((s) => s.isBudgetWatchdogOpen);
+  const isBnpbCommandOpen = useWatchStore((s) => s.isBnpbCommandOpen);
+  const bnpbSnapshotMode = useWatchStore((s) => s.bnpbSnapshotMode);
   const providerKeys = useWatchStore((s) => s.providerKeys);
 
+  const toggleTheme = useWatchStore((s) => s.toggleTheme);
   const setProvinceFilter = useWatchStore((s) => s.setProvinceFilter);
   const setBudgetWatchdogOpen = useWatchStore((s) => s.setBudgetWatchdogOpen);
+  const setBnpbCommandOpen = useWatchStore((s) => s.setBnpbCommandOpen);
   const setPowerUpOpen = useWatchStore((s) => s.setPowerUpOpen);
 
   const visibleHotspots = useMemo(
     () =>
       filterHotspots(
-        INDONESIAN_HOTSPOTS,
+        hotspots,
         selectedProvinceFilter,
         timelineDayOffset,
         cumulativeTimeline
       ),
-    [selectedProvinceFilter, timelineDayOffset, cumulativeTimeline]
+    [hotspots, selectedProvinceFilter, timelineDayOffset, cumulativeTimeline]
   );
 
-  const stats = useMemo(() => {
-    const totalFrp = visibleHotspots.reduce((acc, h) => acc + h.frpMw, 0);
-    const inConcessionCount = visibleHotspots.filter((h) => h.inConcession).length;
-    const concessionRatio =
-      visibleHotspots.length > 0
-        ? Math.round((inConcessionCount / visibleHotspots.length) * 100)
-        : 0;
+  const bnpbMetrics = useMemo(() => {
+    const filtered =
+      selectedProvinceFilter === 'ALL'
+        ? bnpbRecords
+        : filterBnpbRecords(selectedProvinceFilter).map(
+            (seed) => bnpbRecords.find((r) => r.shortProvince === seed.shortProvince) ?? seed
+          );
+    return aggregateBnpbMetrics(filtered, bnpbSnapshotMode);
+  }, [bnpbRecords, selectedProvinceFilter, bnpbSnapshotMode]);
 
+  const stats = useMemo(() => {
     const matchingBudgets = SIRUP_BUDGET_PACKAGES.filter(
       (b) => selectedProvinceFilter === 'ALL' || b.province === selectedProvinceFilter
     );
@@ -66,131 +71,145 @@ export function TopStatusBar() {
 
     return {
       count: visibleHotspots.length,
-      totalFrp: totalFrp.toFixed(1),
-      concessionRatio,
       totalBudgetRp,
       flaggedCount,
     };
   }, [visibleHotspots, selectedProvinceFilter]);
 
   const hasLiveKeys = Boolean(providerKeys.nasaFirmsMapKey.trim());
+  const isLiveTelemetry = backendMode === 'postgis-live' || hasLiveKeys;
+  const sourceLabel =
+    backendMode === 'postgis-live'
+      ? 'PostGIS 3.4'
+      : backendMode === 'postgis-standby'
+        ? 'PostGIS gateway'
+        : hasLiveKeys
+          ? 'FIRMS live'
+          : 'Seed lokal';
 
   return (
-    <header className="pointer-events-none fixed top-3 left-3 right-3 z-30 flex flex-wrap items-center justify-between gap-2.5">
-      {/* Brand + Feed Provenance Pill */}
-      <div className="pointer-events-auto apple-glass-pill flex items-center gap-3 rounded-2xl px-3.5 py-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#ff453a]/15 text-[#ff453a] border border-[#ff453a]/30">
-          <Flame className="h-4 w-4" />
-        </div>
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-sm font-semibold tracking-tight text-white">
-              Nusantara Watch
-            </h1>
-            <span className="inline-flex items-center gap-1 rounded-full bg-white/[0.07] px-2 py-0.5 text-[10px] font-medium text-zinc-300 border border-white/10">
-              <span
-                className={`h-1.5 w-1.5 rounded-full ${
-                  hasLiveKeys ? 'bg-[#30d158]' : 'bg-[#ffd60a]'
-                }`}
-              />
-              {hasLiveKeys ? 'LIVE FIRMS + SI-RUP' : 'OSINT SEED · KEYLESS'}
-            </span>
-          </div>
-          <p className="text-[11px] text-zinc-400">
-            Karhutla Satelit (VIIRS/MODIS) &amp; Transparansi Anggaran SiRUP LKPP
-          </p>
+    <header className="pointer-events-none fixed top-4 left-4 right-4 z-30 flex flex-wrap items-center justify-between gap-3">
+      {/* Left Ultra-Quiet Brand + Monospace Telemetry Readout */}
+      <div className="pointer-events-auto apple-glass-pill flex h-11 items-center gap-3 rounded-xl px-3">
+        <span
+          className="h-1.5 w-1.5 rounded-full shrink-0"
+          style={{
+            backgroundColor: isLiveTelemetry ? 'var(--positive)' : 'var(--warning)',
+          }}
+          title={
+            backendMode === 'postgis-live'
+              ? 'PostgreSQL 16 + PostGIS 3.4 aktif'
+              : 'Mode dataset lokal / siaga'
+          }
+        />
+        <h1 className="text-[15px] font-medium tracking-[-0.01em] text-[var(--text-primary)] whitespace-nowrap">
+          Nusantara Watch
+        </h1>
+
+        <div className="hidden md:block h-4 w-px bg-[var(--border-hairline)]" />
+
+        <div className="hidden md:flex items-center gap-2 font-mono-tabular text-xs text-[var(--text-secondary)] whitespace-nowrap">
+          <span>
+            <strong className="font-medium text-[var(--accent)]">{stats.count}</strong> titik api
+          </span>
+          <span className="text-[var(--text-muted)]">·</span>
+          <span>{bnpbMetrics.luasTerbakar24hHa.toLocaleString('id-ID')} ha</span>
+          <span className="text-[var(--text-muted)] hidden xl:inline">·</span>
+          <span className="hidden xl:inline">{formatRupiah(stats.totalBudgetRp)}</span>
+          <span className="text-[var(--text-muted)]">·</span>
+          <span className="text-[var(--text-muted)]">{sourceLabel}</span>
         </div>
       </div>
 
-      {/* Center Telemetry Metrics (Tabular Numerals) */}
-      <div className="pointer-events-auto apple-glass-pill hidden xl:flex items-center gap-5 rounded-2xl px-4 py-2">
-        <div className="flex items-center gap-2.5">
-          <span className="type-micro text-zinc-400">Titik Api Aktif</span>
-          <span className="tabular-nums text-sm font-semibold text-[#ff453a]">
-            {stats.count}
-          </span>
-          <span className="tabular-nums text-xs text-zinc-400">
-            ({stats.totalFrp} MW FRP)
-          </span>
-        </div>
+      {/* Right Ultra-Quiet Controls */}
+      <div className="pointer-events-auto apple-glass-pill flex flex-wrap items-center gap-1.5 rounded-xl px-2 py-1.5">
+        <select
+          id="province-select"
+          aria-label="Filter wilayah"
+          value={selectedProvinceFilter}
+          onChange={(e) => setProvinceFilter(e.target.value, true)}
+          className="h-8 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-hairline)] px-2.5 text-xs font-medium text-[var(--text-primary)] hover:border-[var(--border-strong)] focus:outline-none cursor-pointer"
+        >
+          {PROVINCE_OPTIONS.map((prov) => (
+            <option key={prov} value={prov}>
+              {prov === 'ALL' ? 'Seluruh Indonesia' : prov}
+            </option>
+          ))}
+        </select>
 
-        <div className="h-4 w-px bg-white/10" />
-
-        <div className="flex items-center gap-2">
-          <ShieldAlert className="h-3.5 w-3.5 text-[#ff9f0a]" />
-          <span className="type-micro text-zinc-400">Di Area Konsesi</span>
-          <span className="tabular-nums text-sm font-semibold text-[#ff9f0a]">
-            {stats.concessionRatio}%
-          </span>
-        </div>
-
-        <div className="h-4 w-px bg-white/10" />
-
-        <div className="flex items-center gap-2">
-          <AlertTriangle className="h-3.5 w-3.5 text-[#ffd60a]" />
-          <span className="type-micro text-zinc-400">Pagu SiRUP Terpantau</span>
-          <span className="tabular-nums text-sm font-semibold text-white">
-            {formatRupiah(stats.totalBudgetRp)}
-          </span>
-          {stats.flaggedCount > 0 && (
-            <span className="tabular-nums rounded-full bg-[#ff453a]/20 px-2 py-0.5 text-[10px] font-semibold text-[#ff6961] border border-[#ff453a]/30">
-              {stats.flaggedCount} Anomali
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Right Controls: Province Filter, Budget Watchdog, Power Up */}
-      <div className="pointer-events-auto flex items-center gap-2">
-        <div className="apple-glass-pill rounded-2xl px-2.5 py-1.5 flex items-center gap-2">
-          <label htmlFor="province-select" className="type-micro text-zinc-400 pl-1">
-            Wilayah
-          </label>
-          <select
-            id="province-select"
-            value={selectedProvinceFilter}
-            onChange={(e) => setProvinceFilter(e.target.value)}
-            className="bg-transparent text-xs font-medium text-white focus:outline-none cursor-pointer pr-1"
+        <button
+          type="button"
+          onPointerDown={() => setBnpbCommandOpen(!isBnpbCommandOpen)}
+          className={`apple-pressable flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium border ${
+            isBnpbCommandOpen
+              ? 'bg-[var(--text-primary)] text-[var(--surface-card)] border-transparent'
+              : 'bg-[var(--surface-raised)] text-[var(--text-primary)] border-[var(--border-hairline)] hover:border-[var(--border-strong)]'
+          }`}
+          aria-pressed={isBnpbCommandOpen}
+          title="Buka Dashboard Informasi Penanganan Karhutla BNPB 2026 (B)"
+        >
+          <span>Posko BNPB</span>
+          <span
+            className={`font-mono-tabular text-[11px] ${
+              isBnpbCommandOpen ? 'opacity-80' : 'text-[var(--accent)]'
+            }`}
           >
-            {PROVINCE_OPTIONS.map((prov) => (
-              <option key={prov} value={prov} className="bg-[#16161a] text-white">
-                {prov === 'ALL' ? 'Seluruh Indonesia' : prov}
-              </option>
-            ))}
-          </select>
-        </div>
+            {bnpbMetrics.totalHotspot.toLocaleString('id-ID')}
+          </span>
+        </button>
 
         <button
           type="button"
           onPointerDown={() => setBudgetWatchdogOpen(!isBudgetWatchdogOpen)}
-          className={`apple-pressable apple-glass-pill flex items-center gap-2 rounded-2xl px-3.5 py-2 text-xs font-medium transition-colors ${
+          className={`apple-pressable flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-medium border ${
             isBudgetWatchdogOpen
-              ? 'bg-[#ff453a]/25 text-white border-[#ff453a]/50'
-              : 'text-zinc-200 hover:text-white'
+              ? 'bg-[var(--text-primary)] text-[var(--surface-card)] border-transparent'
+              : 'bg-[var(--surface-raised)] text-[var(--text-primary)] border-[var(--border-hairline)] hover:border-[var(--border-strong)]'
           }`}
           aria-pressed={isBudgetWatchdogOpen}
+          title="Buka Audit Anggaran SiRUP LKPP"
         >
-          <Scale className="h-3.5 w-3.5 text-[#ff6961]" />
-          <span>Anggaran vs. Realita</span>
-          <span className="tabular-nums rounded-md bg-[#ff453a]/20 px-1.5 py-0.2 text-[10px] font-semibold text-[#ff6961]">
+          <span>Audit SiRUP</span>
+          <span
+            className={`font-mono-tabular text-[11px] ${
+              isBudgetWatchdogOpen ? 'opacity-80' : 'text-[var(--text-muted)]'
+            }`}
+          >
             {stats.flaggedCount}
           </span>
         </button>
 
         <button
           type="button"
-          onPointerDown={() => setPowerUpOpen(true)}
-          className="apple-pressable apple-glass-pill flex items-center gap-1.5 rounded-2xl px-3 py-2 text-xs font-medium text-zinc-200 hover:text-white"
-          aria-label="Power Up Provider API Keys"
+          onPointerDown={toggleTheme}
+          className="apple-pressable flex h-8 items-center gap-1.5 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-hairline)] px-2.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-strong)]"
+          aria-label={
+            theme === 'dark' ? 'Ubah ke mode terang' : 'Ubah ke mode gelap'
+          }
+          title="Ubah mode tampilan (T)"
         >
-          {hasLiveKeys ? (
-            <Sparkles className="h-3.5 w-3.5 text-[#30d158]" />
+          {theme === 'dark' ? (
+            <>
+              <Sun className="h-4 w-4" strokeWidth={1.5} />
+              <span className="hidden sm:inline">Terang</span>
+            </>
           ) : (
-            <KeyRound className="h-3.5 w-3.5 text-[#ffd60a]" />
+            <>
+              <Moon className="h-4 w-4" strokeWidth={1.5} />
+              <span className="hidden sm:inline">Gelap</span>
+            </>
           )}
-          <span className="hidden sm:inline">
-            {hasLiveKeys ? 'Powered Up' : 'Power Up'}
-          </span>
+        </button>
+
+        <button
+          type="button"
+          onPointerDown={() => setPowerUpOpen(true)}
+          className="apple-pressable flex h-8 items-center gap-1.5 rounded-lg bg-[var(--surface-raised)] border border-[var(--border-hairline)] px-2.5 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-strong)]"
+          aria-label="Pengaturan API key penyedia"
+          title="Tambahkan NASA FIRMS / Gemini API key"
+        >
+          <KeyRound className="h-4 w-4" strokeWidth={1.5} />
+          <span className="hidden sm:inline">{hasLiveKeys ? 'API aktif' : 'API key'}</span>
         </button>
       </div>
     </header>
