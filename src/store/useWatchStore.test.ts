@@ -4,6 +4,9 @@ import { useWatchStore } from './useWatchStore';
 describe('useWatchStore state & spatial actions', () => {
   beforeEach(() => {
     useWatchStore.getState().resetGlobe();
+    useWatchStore.getState().setBasemap('dark-glass');
+    useWatchStore.getState().setTheme('dark');
+    useWatchStore.getState().setBnpbCommandOpen(false);
   });
 
   it('toggles spatial layers and basemaps', () => {
@@ -15,6 +18,32 @@ describe('useWatchStore state & spatial actions', () => {
 
     store.setBasemap('satellite');
     expect(useWatchStore.getState().basemap).toBe('satellite');
+  });
+
+  it('toggles between Apple Dark Mode and Clean Light Mode while syncing basemap', () => {
+    const store = useWatchStore.getState();
+    expect(store.theme).toBe('dark');
+    expect(store.basemap).toBe('dark-glass');
+
+    store.toggleTheme();
+    expect(useWatchStore.getState().theme).toBe('light');
+    expect(useWatchStore.getState().basemap).toBe('light-glass');
+
+    store.toggleTheme();
+    expect(useWatchStore.getState().theme).toBe('dark');
+    expect(useWatchStore.getState().basemap).toBe('dark-glass');
+  });
+
+  it('switches BNPB snapshot mode and opens BNPB Command Drawer', () => {
+    const store = useWatchStore.getState();
+    expect(store.isBnpbCommandOpen).toBe(false);
+    expect(store.bnpbSnapshotMode).toBe('live-api');
+
+    store.setBnpbCommandOpen(true);
+    store.setBnpbSnapshotMode('excel-sheet');
+
+    expect(useWatchStore.getState().isBnpbCommandOpen).toBe(true);
+    expect(useWatchStore.getState().bnpbSnapshotMode).toBe('excel-sheet');
   });
 
   it('locks camera onto a hotspot when selected', () => {

@@ -29,6 +29,33 @@ export function formatRupiah(amount: number, compact = true): string {
 }
 
 /**
+ * Formats compact Indonesian Rupiah for narrow KPI stat tiles without truncation.
+ */
+export function formatShortRupiah(amount: number): string {
+  if (!Number.isFinite(amount)) return 'Rp 0';
+  const abs = Math.abs(amount);
+  if (abs >= 1_000_000_000_000) {
+    const val = (amount / 1_000_000_000_000).toLocaleString('id-ID', {
+      maximumFractionDigits: 1,
+    });
+    return `Rp ${val} T`;
+  }
+  if (abs >= 1_000_000_000) {
+    const val = (amount / 1_000_000_000).toLocaleString('id-ID', {
+      maximumFractionDigits: 1,
+    });
+    return `Rp ${val} M`;
+  }
+  if (abs >= 1_000_000) {
+    const val = (amount / 1_000_000).toLocaleString('id-ID', {
+      maximumFractionDigits: 0,
+    });
+    return `Rp ${val} Jt`;
+  }
+  return `Rp ${Math.round(amount).toLocaleString('id-ID')}`;
+}
+
+/**
  * Formats WGS84 coordinates into crisp geographic strings.
  */
 export function formatCoordinates(lng: number, lat: number): string {
